@@ -1,45 +1,57 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { getMovies } from '../actions';
+import { initialize } from '../actions';
 import {
   Table,
-  TableHeader,
   TableBody,
-  TableRow
+  TableRow,
+  TableRowColumn,
+  TableHeader,
+  TableHeaderColumn
 } from 'material-ui/Table';
+
+import MovieRow from './MovieRow';
 
 export class MovieTable extends React.Component {
   componentWillMount() {
-    this.props.getMovies();
+    this.props.initialize();
+  }
+
+  headerColumnStyle() {
+    return { textAlign: 'center' };
+  }
+
+  headerColumnGenerator(text, index) {
+    return(
+      <TableHeaderColumn key={index} style={this.headerColumnStyle()}>
+        {text}
+      </TableHeaderColumn>
+    );
   }
 
   render() {
-    const { movies } = this.props;
+    const { movies, isFetching } = this.props;
+    const headerNames = ['Name', 'Description', 'Actors', 'Director', 'Genres', 'Duration', 'Book it!'];
 
     return(
       <Table fixedHeader={true} selectable={false}>
-        <TableHeader>
-          <div>Name</div>
-          <div>Description</div>
-          <div>Actors</div>
-          <div>Director</div>
-          <div>Genres</div>
-          <div>Duration</div>
+        <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
+          <TableRow>
+            {headerNames.map((name, index) => {
+              return this.headerColumnGenerator(name, index);
+            })}
+          </TableRow>
         </TableHeader>
         <TableBody displayRowCheckbox={false} selectable={false}>
-          return movies.map((movie, index) => {
-            <TableRow key={index} displayBorder={true}>
-              const { Name, Descrption, Actors, Directors, Genres, Duration } = movie;
-              <div>
-                <div>this.Name</div>
-                <div>this.Description</div>
-                <div>this.Actors</div>
-                <div>this.Director</div>
-                <div>this.Genres</div>
-                <div>this.Duration</div>
-              </div>
-            </TableRow>
-          });
+          {isFetching ?
+            <TableRow>
+              <TableRowColumn>
+                Loading...
+              </TableRowColumn>
+            </TableRow> :
+            movies.map((movie, index) => {
+              return <MovieRow movie={movie} key={index} index={index}/>;
+            })}
         </TableBody>
       </Table>
     );
@@ -48,14 +60,14 @@ export class MovieTable extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    startRankIndex: state.startRankIndex,
-    numMovies: state.numMovies
+    isFetching: state.isFetching,
+    movies: state.movies
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    getMovies: (startRankIndex, numMovies) => dispatch(getMovies(startRankIndex, numMovies))
+    initialize: () => { dispatch(initialize()) }
   };
 };
 

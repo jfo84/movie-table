@@ -19,12 +19,8 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           query: {
-            presets: ['react','es2015'],
-            plugins: [
-              'babel-plugin-transform-async-to-generator',
-              'transform-es2015-destructuring',
-              'transform-object-rest-spread'
-            ]
+            presets: ['es2015', 'es2017', 'stage-0', 'react'],
+            plugins: ['transform-runtime']
           }
         }
       }

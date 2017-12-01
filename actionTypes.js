@@ -1,3 +1,3 @@
-export const GET_MOVIES = "GET_MOVIES";
+export const REQUEST_MOVIES = "REQUEST_MOVIES";
+export const RECEIVE_MOVIES = "RECEIVE_MOVIES";
 export const CHANGE_PAGE = "CHANGE_PAGE";
-export const CHANGE_PAGINATION = "CHANGE_PAGINATION";

@@ -16,37 +16,77 @@ const _movieDetailsWithIds = (ids) => {
   return `${MOVIE_DETAILS_URL}?authToken=${authToken}${movieIdsString}`;
 };
 
-export const getMovies = (startRankIndex = 1, numMovies = 10) => {
-  const params = Object.assign(BASE_PARAMS, { startRankIndex, numMovies });
-  var url = `${MOVIES_BY_RANK_URL}?${queryString.stringify(params)}`;
+export const initialize = () => {
+  return (dispatch) => {
+    dispatch(fetchMovies());
+  };
+};
 
-  const movies = fetch(url).then((response) => {
-    const ids = response.json.map((movie) => movie.Id);
-    var url = _movieDetailsWithIds(ids);
+export const updateMovies = (startRankIndex, numMovies) => {
+  return (dispatch) => {
+    dispatch(fetchMovies(startRankIndex, numMovies))
+  }
+}
 
-    return fetch(url).then(detailResponse => detailResponse.json)
-  });
-
+const requestMovies = () => {
   return {
-    type: actionTypes.GET_MOVIES,
+    type: actionTypes.REQUEST_MOVIES,
     payload: {
-      movies,
-      startRankIndex,
-      numMovies
+      isFetching: true
     }
   };
 };
 
-export const changePage = (startRankIndex) => {
+const receiveMovies = (movies) => {
   return {
-    type: actionTypes.CHANGE_PAGE,
-    payload: startRankIndex
+    type: actionTypes.RECEIVE_MOVIES,
+    payload: {
+      isFetching: false,
+      movies
+    }
   };
 };
 
-export const changePagination = (numMovies) => {
-  return {
-    type: actionTypes.CHANGE_PAGINATION,
-    payload: numMovies
+const fetchMovies = (startRankIndex = 1, numMovies = 10) => {
+  return (dispatch) => {
+    dispatch(requestMovies());
+
+    const params = Object.assign(BASE_PARAMS, { startRankIndex, numMovies });
+    var url = `${MOVIES_BY_RANK_URL}?${queryString.stringify(params)}`;
+
+    return fetch(url).then((simpleResponse) => {
+      return simpleResponse.json();
+    }).then((simpleMovies) => {
+      const ids = simpleMovies.map((movie) => movie.Id);
+      var url = _movieDetailsWithIds(ids);
+
+      return fetch(url).then((detailResponse) => {
+        return detailResponse.json();
+      }).then((movies) => {
+        dispatch(receiveMovies(movies));
+      });
+    });
+  }
+};
+
+export const pageForwards = () => {
+  return (dispatch, getState) => {
+    var { startRankIndex, numMovies } = getState();
+    var startRankIndex = startRankIndex + numMovies;
+    dispatch({
+      type: actionTypes.CHANGE_PAGE,
+      payload: startRankIndex
+    });
+  }
+};
+
+export const pageBackwards = () => {
+  return (dispatch, getState) => {
+    var { startRankIndex, numMovies } = getState();
+    var startRankIndex = startRankIndex - numMovies;
+    dispatch({
+      type: actionTypes.CHANGE_PAGE,
+      payload: startRankIndex
+    });
   };
 };

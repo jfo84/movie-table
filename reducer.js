@@ -1,15 +1,22 @@
 import * as actionTypes from './actionTypes';
 
 const initialState = {
+  isFetching: false,
   startRankIndex: 1,
-  numMovies: 10
-}
+  numMovies: 10,
+  movies: []
+};
 
 const reducer = (state = initialState, action) => {
   const payload = action.payload;
 
   switch(action.type) {
-    case(actionTypes.GET_MOVIES):
+    case(actionTypes.REQUEST_MOVIES):
+      return {
+        ...state,
+        ...payload
+      };
+    case(actionTypes.RECEIVE_MOVIES):
       return {
         ...state,
         ...payload
@@ -17,12 +24,7 @@ const reducer = (state = initialState, action) => {
     case(actionTypes.CHANGE_PAGE):
       return {
         ...state,
-        ...payload
-      };
-    case(actionTypes.CHANGE_PAGINATION):
-      return {
-        ...state,
-        ...payload
+        startRankIndex: payload
       };
     default:
       return state;
